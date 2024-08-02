@@ -6,7 +6,7 @@
 However, I am unsure of the exact effect of the index on market prices. While I have observed its influence anecdotally, I lack concrete justification to back up my observations. Furthermore, tracking this index daily can be exhausting and there are many times where I miss out on it entirely. Thus this serves as the motivation of my project.
 
 ## Project Aim
-In this project, I aim to evaluate the Fear and Greed Index’s accuracy in signalling market reversals and to develop a trading strategy by using it as an indicator. The performance of the strategy will be benchmarked against the “buy and hold” strategy to evaluate its effectiveness. In order to streamline the process of being staying updated, a Telegram bot will be created to automatically fetch and alert us of the Fear and Greed Index daily.
+In this project, I aim to evaluate the Fear and Greed Index’s accuracy in signalling market reversals and to develop a trading strategy by using it as an indicator. The performance of the strategy will be benchmarked against the “buy and hold” strategy to evaluate its effectiveness. In order to streamline the process of staying updated, a Telegram bot will be created to fetch and alert us of the Fear and Greed Index daily.
 
 ## Results and Recommendations
 Overall, we can conclude that both the strategy that was explored does have an edge in the markets and the best parameters used for both strategies was able to outperform the simple 'buy and hold' strategy by 65.87% and 54.12% respectively. However, choosing strategy 1 would mean having only 5 trades for the entire backtesting period.
@@ -29,8 +29,8 @@ While the results suggest that this strategy has an edge in the markets, there a
 - `analysis.ipynb` is the jupyter notebook where all the analysis was done.
 - `strategy_results` folder consists of the backtesting results of all the combination of parameters used for both strategy 1 and 2.
 - `finalised_results` folder consists of the selected strategy (strategy 2) backtesting report and transaction records.
-- `datasets` folder consists of the fear and greed data that was used in this project
-- `backtester` folder consists of the backtester script used for strategy 1 and strategy 2
+- `datasets` folder consists of the fear and greed data that was used in this project.
+- `backtester` folder consists of the backtester script used for strategy 1 and strategy 2.
 - `alert` folder consists of the script that generates the telegram alert.
 
 ## Setting Up the Telegram Alert
