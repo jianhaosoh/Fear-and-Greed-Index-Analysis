@@ -13,7 +13,7 @@ Overall, we can conclude that both the strategy that was explored does have an e
 
 Thus, the recommended strategy to follow will be **Strategy 2**. While the best threshold in strategy 1 offers better returns than the best threshold in strategy 2, the number of trades is very low and average trade duration is very high. This is not ideal for the live markets considering the psychological aspects.
 
-For strategy 2, there is two recommended set of parameters to use depending on one's risk profile. The parameters with an higher risk tolerance outperforms the simple 'buy and hold' strategy by 54.12% while the parameters with an higher risk tolerance outperforms the simple 'buy and hold' strategy by 41.03%.  However, choosing the higher risk tolerance strategy would mean having to endure double the maximum potential drawdown (-54.0% vs -26.0%) for a potential 10% better outperformance returns offered.
+For strategy 2, there is two recommended set of parameters to use depending on one's risk profile. The parameters with an higher risk tolerance outperforms the simple 'buy and hold' strategy by 54.12% while the parameters with an lower risk tolerance outperforms the simple 'buy and hold' strategy by 41.03%.  However, choosing the higher risk tolerance strategy would mean having to endure double the maximum potential drawdown (-54.0% vs -26.0%) for a potential 10% better outperformance returns offered.
 
 Thus, the recommended strategy to follow will be the **lower risk tolerance strategy**. 
 
