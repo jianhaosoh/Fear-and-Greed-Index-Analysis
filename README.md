@@ -17,7 +17,11 @@ For strategy 2, there is two recommended set of parameters to use depending on o
 
 Thus, the recommended strategy to follow will be the **lower risk tolerance strategy**. 
 
-Overall, the recommended strategy 2 along with the lower risk tolerance approach has an **total return of 534.74%** over a 13 year period, having an **annualised 41.13% return** and a **max drawdown of -26.0%**.
+Overall, the recommended strategy 2 along with the lower risk tolerance approach has an **total return of 534.74%** over a 13 year period, having an **annualised 41.13% return** and a **max drawdown of -26.0%**. 
+
+Attached below is the visualisation of the backtesting result of Strategy 2, using the lower risk tolerance approach.
+
+![Recommended Strategy Backtest](/finalised_results/results.png)
 
 ## Reflection
 While the results suggest that this strategy has an edge in the markets, there are some caveats to consider.
