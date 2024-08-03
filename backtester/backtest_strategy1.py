@@ -1,6 +1,5 @@
 import numpy as np
-import pandas as pd
-import plotly.graph_objects as go
+import matplotlib.pyplot as plt
 
 
 class Trade:
@@ -109,51 +108,22 @@ class Backtest:
         return self
     
     def plot(self):
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=self.data.index,
-            y=self.data['SPY Opening Price'],
-            mode='lines',
-            name='SPY Opening Price',
-            line=dict(color='blue')
-        ))
+        plt.figure(figsize=(12, 6))
+
+        plt.plot(self.data.index, self.data['SPY Opening Price'], label='SPY Opening Price', color='blue')
         buy_signals = [trade for trade in self.trades if trade.position == 'Buy']
         sell_signals = [trade for trade in self.trades if trade.position == 'Sell']
-
-        fig.add_trace(go.Scatter(
-            x=[trade.open_date for trade in buy_signals],
-            y=[trade.open_price for trade in buy_signals],
-            mode='markers',
-            name='Buy',
-            marker=dict(symbol='triangle-up', size=10, color='green')
-        ))
-
-        fig.add_trace(go.Scatter(
-            x=[trade.open_date for trade in sell_signals],
-            y=[trade.open_price for trade in sell_signals],
-            mode='markers',
-            name='Sell',
-            marker=dict(symbol='triangle-down', size=10, color='red')
-        ))
-
-        fig.update_layout(
-            title={
-                'text': "Backtest of Trading Strategy",
-                'y':0.95,  
-                'x':0.5,  
-                'font': {
-                    'size': 18,
-                }
-            },
-            xaxis_title='Date',
-            yaxis_title='SPY Opening Price',
-            height=500,
-            width=1150,
-            legend=dict(orientation='h', x=0.5, xanchor='center', y=1.15),
-            template='plotly_white'
-        )
-
-        fig.show()
+        plt.scatter([trade.open_date for trade in buy_signals], [trade.open_price for trade in buy_signals], 
+                    label='Buy', color='green', marker='^', s=70, zorder=5)
+        plt.scatter([trade.open_date for trade in sell_signals], [trade.open_price for trade in sell_signals], 
+                    label='Sell', color='red', marker='v', s=70, zorder=5)
+        
+        plt.xlabel('Date')
+        plt.ylabel('SPY Opening Price')
+        plt.title('Backtest of Trading Strategy', size=12, weight='bold', y=1)
+        plt.legend(loc='upper left')
+        
+        plt.show()
     
     def generate_report(self):
         total_trades = len(self.trades)

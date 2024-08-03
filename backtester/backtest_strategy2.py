@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+import matplotlib.pyplot as plt
 
 class Trade:
     def __init__(self, open_date, open_price, position, shares, take_profit, stop_loss, data, equity_balance):
@@ -195,37 +194,22 @@ class Backtest:
         return self
     
     def plot(self):
-        fig = make_subplots(rows=3, cols=1, shared_xaxes=True, vertical_spacing=0.03, 
-                            row_heights=[0.5, 0.25, 0.25])
-        # Plot for SPY Opening Price with signals
-        fig.add_trace(
-            go.Scatter(x=self.data.index, y=self.data['SPY Opening Price'], 
-                    mode='lines', name='SPY Opening Price', line=dict(color='blue')),
-            row=1, col=1
-        )
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 10), sharex=True, height_ratios=[2, 1, 1])
+
+        ax1.plot(self.data.index, self.data['SPY Opening Price'], label='SPY Opening Price', color='blue')
         buy_signals = [trade for trade in self.trades if trade.position == 'Buy']
         sell_signals = [trade for trade in self.trades if trade.position == 'Sell']
-        fig.add_trace(
-            go.Scatter(x=[trade.open_date for trade in buy_signals],
-                    y=[trade.open_price for trade in buy_signals],
-                    mode='markers', name='Buy',
-                    marker=dict(symbol='triangle-up', size=10, color='green')),
-            row=1, col=1
-        )
-        fig.add_trace(
-            go.Scatter(x=[trade.open_date for trade in sell_signals],
-                    y=[trade.open_price for trade in sell_signals],
-                    mode='markers', name='Sell',
-                    marker=dict(symbol='triangle-down', size=10, color='red')),
-            row=1, col=1
-        )
-        # Plot for Fear and Greed Index
-        fig.add_trace(
-            go.Scatter(x=self.data.index, y=self.data['Fear and Greed Index'], 
-                    mode='lines', name='Fear and Greed Index', line=dict(color='orange')),
-            row=2, col=1
-        )
-        # Plot for Equity Change
+        ax1.scatter([trade.open_date for trade in buy_signals], [trade.open_price for trade in buy_signals], 
+                    label='Buy', color='green', marker='^', s=70, zorder=5)
+        ax1.scatter([trade.open_date for trade in sell_signals], [trade.open_price for trade in sell_signals], 
+                    label='Sell', color='red', marker='v', s=70, zorder=5)
+        ax1.set_ylabel('SPY Opening Price')
+        ax1.legend(loc='upper left')
+
+        ax2.plot(self.data.index, self.data['Fear and Greed Index'], label='Fear and Greed Index', color='orange')
+        ax2.set_ylabel('Fear and Greed Index')
+        ax2.legend(loc='upper left')
+
         transaction_records = self.transaction_records()
         initial_record = pd.DataFrame({
             'Close Date': [self.data.index.min()],
@@ -237,31 +221,16 @@ class Backtest:
         })
         full_records = pd.concat([initial_record, transaction_records[['Close Date', 'Equity Balance']]]).reset_index(drop=True)
         full_records = pd.concat([full_records, last_record]).reset_index(drop=True)
-        fig.add_trace(
-            go.Scatter(x=full_records['Close Date'], y=full_records['Equity Balance'],
-                    mode='lines', name='Equity Balance', line=dict(color='purple')),
-            row=3, col=1
-        )
+        ax3.plot(full_records['Close Date'], full_records['Equity Balance'], label='Equity Balance', color='purple')
+        ax3.set_ylabel('Equity Balance')
+        ax3.set_xlabel('Date')
+        ax3.legend(loc='upper left')
 
-        fig.update_layout(
-            title={
-                'text': "Backtest of Trading Strategy",
-                'y':0.97,
-                'x':0.5,
-                'font': {'size': 18}
-            },
-            height=800,
-            width=1150,
-            legend=dict(orientation='h', x=0.5, xanchor='center', y=1.08),
-            template='plotly_white'
-        )
-        
-        fig.update_yaxes(title_text="SPY Opening Price", row=1, col=1, title_font=dict(size=12))
-        fig.update_yaxes(title_text="Fear and Greed Index", row=2, col=1, title_font=dict(size=12))
-        fig.update_yaxes(title_text="Equity Balance", row=3, col=1, title_font=dict(size=12))
-        fig.update_xaxes(title_text="Date", row=3, col=1, title_font=dict(size=12))
+        fig.suptitle('Backtest of Trading Strategy', size=12, weight='bold', y=1)
+        plt.tight_layout()
+        plt.subplots_adjust(hspace=0.1)
 
-        fig.show()
+        plt.show()
 
     def transaction_records(self):
         records = []
