@@ -48,7 +48,7 @@ class Backtest:
     def buy_and_hold_return(self):
         shares = self.initial_balance // self.data.iloc[0]['SPY Opening Price']
         trade = Trade(self.data.index[0], self.data.iloc[0]['SPY Opening Price'], 'Buy', shares)
-        returns = trade.close_trade(self.data.index[-1], self.data.iloc[-1]['SPY Opening Price']).returns
+        returns = trade.close_trade(self.data.index[-1], self.data.iloc[-1]['SPY Opening Price']).returns - self.initial_balance
         return returns
     
     def generate_signal(self, buy_threshold, sell_threshold):
@@ -132,15 +132,18 @@ class Backtest:
         winners = [trade for trade in self.trades if trade.returns > 0]
         losers = [trade for trade in self.trades if trade.returns < 0]
         buy_and_hold_returns = self.buy_and_hold_return()
+        total_returns = self.balance - self.initial_balance
 
         report = {
             'Initial Balance': self.initial_balance,
             'Final Balance': round(self.balance, 2),
-            'Total Returns': round(self.balance - self.initial_balance, 2),
-            'Total Returns (%)': round(((self.balance - self.initial_balance) / self.initial_balance) * 100, 2),
-            'Annualised Returns (%)': round(((self.balance - self.initial_balance) / self.initial_balance) * 100 / (self.data.index.max().year - self.data.index.min().year), 2),
-            'Average Returns': round((self.balance - self.initial_balance) / total_trades, 2),
-            'Average Returns (%)': round(((self.balance - self.initial_balance) / self.initial_balance) * 100 / total_trades, 2),
+            'Total Returns': round(total_returns, 2),
+            'Total Returns (%)': round((total_returns / self.initial_balance) * 100, 2),
+            'Annualised Returns (%)': round(((1 + total_returns / self.initial_balance) ** (365 / (self.data.index.max() - self.data.index.min()).days) - 1) * 100, 2),
+            'Average Returns': round((total_returns) / (self.data.index.max().year - self.data.index.min().year), 2),
+            'Average Returns (%)': round((total_returns / self.initial_balance) * 100 / (self.data.index.max().year - self.data.index.min().year), 2),
+            'Average Returns Per Trade': round(total_returns / total_trades, 2),
+            'Average Returns Per Trade (%)': round((total_returns / self.initial_balance) * 100 / total_trades, 2),
             'Average Trade Duration': int(avg_duration),
             'Number of Winners': len(winners),
             'Average Winner Returns': round(np.mean([trade.returns for trade in winners]), 2) if winners else 0,
@@ -150,9 +153,10 @@ class Backtest:
             'Average Loser Returns (%)': round(np.mean([trade.pct_returns for trade in losers]), 2) if losers else 0,
             'Win Rate (%)': round((len(winners) / total_trades) * 100, 2),
             'Buy and Hold Returns': round(buy_and_hold_returns, 2),
-            'Buy and Hold Returns (%)': round(((buy_and_hold_returns - self.initial_balance) / self.initial_balance) * 100, 2),
-            'Annualised Buy and Hold Returns (%)': round(((buy_and_hold_returns - self.initial_balance) / self.initial_balance) * 100 / (self.data.index.max().year - self.data.index.min().year), 2),
-            'Performance vs Buy and Hold (%)': round(((self.balance - buy_and_hold_returns) / buy_and_hold_returns) * 100, 2),
+            'Buy and Hold Returns (%)': round((buy_and_hold_returns / self.initial_balance) * 100, 2),
+            'Annualised Buy and Hold Returns (%)': round(((1 + buy_and_hold_returns / self.initial_balance) ** (365 / (self.data.index.max() - self.data.index.min()).days) - 1) * 100, 2),
+            'Average Buy and Hold Returns (%)': round((buy_and_hold_returns / self.initial_balance) * 100 / (self.data.index.max().year - self.data.index.min().year), 2),
+            'Performance vs Buy and Hold (%)': round(((self.balance - (buy_and_hold_returns + self.initial_balance)) / (buy_and_hold_returns + self.initial_balance)) * 100, 2),
             'Total Trades': len(self.trades)
         }
         return report
@@ -166,9 +170,11 @@ class Backtest:
             f"Final Balance: {report['Final Balance']} \n"
             f"Total Returns: {report['Total Returns']} \n"
             f"Total Returns (%): {report['Total Returns (%)']}% \n"
-            f"Annualised Returns (%): {report['Annualised Returns (%)']}% \n"
+            f"Annualised Returns (%): {report['Annualised Returns (%)']}% \n"            
             f"Average Returns: {report['Average Returns']} \n"
             f"Average Returns (%): {report['Average Returns (%)']}% \n"
+            f"Average Returns Per Trade: {report['Average Returns Per Trade']} \n"
+            f"Average Returns Per Trade (%): {report['Average Returns Per Trade (%)']}% \n"
             f"Average Trade Duration: {report['Average Trade Duration']} days \n"
             f"Number of Winners: {report['Number of Winners']} \n"
             f"Average Winner Returns: {report['Average Winner Returns']} \n"
@@ -180,6 +186,7 @@ class Backtest:
             f"Buy and Hold Returns: {report['Buy and Hold Returns']} \n"
             f"Buy and Hold Returns (%): {report['Buy and Hold Returns (%)']}% \n"
             f"Annualised Buy and Hold Returns (%): {report['Annualised Buy and Hold Returns (%)']}% \n"
+            f"Average Buy and Hold Returns (%): {report['Average Buy and Hold Returns (%)']}% \n"
             f"Performance vs Buy and Hold (%): {report['Performance vs Buy and Hold (%)']}% \n"
             f"Total Trades: {report['Total Trades']} \n"
         )

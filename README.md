@@ -17,7 +17,7 @@ For strategy 2, there is two recommended set of parameters to use depending on o
 
 Thus, the recommended strategy to follow will be the **lower risk tolerance strategy**. 
 
-Overall, the recommended strategy 2 along with the lower risk tolerance approach has an **total return of 534.74%** over a 13 year period, having an **annualised 41.13% return** and a **max drawdown of -26.0%**. 
+Overall, the recommended strategy 2 along with the lower risk tolerance approach has an **total return of 534.74%** over a 13 year period, having an **annualised 14.57% return** and a **max drawdown of -26.0%**. 
 
 Attached below is the visualisation of the backtesting result of Strategy 2, using the lower risk tolerance approach.
 
@@ -26,8 +26,10 @@ Attached below is the visualisation of the backtesting result of Strategy 2, usi
 ## Reflection
 While the results suggest that this strategy has an edge in the markets, there are some caveats to consider.
 
-- Firstly, the results suggests that no sell trades should be taken when the market sentiments are fearful and that we should only focus on buys. This makes sense considering that the dataset used covers a decade during which the market was trending upwards. The market crash in 2020 during the Coronavirus pandemic also contributed to the overall profitability as we were able to capture the recovery move. While it is true that markets tend to rise in the long run (over a few decades), short-term movements are unpredictable. Thus, this strategy may not perform well if the markets trend downwards for the next 10 years. But, that is something that no one can predict with certainty. 
-- Additionally, this strategy is one that works well in trending markets. If the market trends sideways during periods of consolidation, the strategy could struggle due to many false signals, leading to losses.
+- The results suggests that no sell trades should be taken when the market sentiments are fearful and that we should only focus on buys. This makes sense considering that the dataset used covers a decade during which the market was trending upwards. The market crash in 2020 during the Coronavirus pandemic also contributed to the overall profitability as we were able to capture the recovery move. While it is true that markets tend to rise in the long run (over a few decades), short-term movements are unpredictable. Thus, this strategy may not perform well if the markets trend downwards for the next 10 years. But, that is something that no one can predict with certainty. 
+- This strategy is one that works well in trending markets. If the market trends sideways during periods of consolidation, the strategy could struggle due to many false signals, leading to losses.
+- The recommended strategy and risk tolerance approach have a win rate of 28.12% which is relatively low and can be challenging to manage psychologically in the live markets.
+- The results did not take into account of commissions.s
 
 ## Overview Of Files
 - `analysis.ipynb` is the jupyter notebook where all the analysis was done.
