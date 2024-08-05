@@ -6,16 +6,16 @@
 However, I am unsure of the exact effect of the index on market prices. While I have observed its influence anecdotally, I lack concrete justification to back up my observations. Furthermore, tracking this index daily can be exhausting and there are many times where I miss out on it entirely. Thus this serves as the motivation of my project.
 
 ## Project Aim
-In this project, I aim to evaluate the Fear and Greed Index’s accuracy in signalling market reversals and to develop a trading strategy by using it as an indicator. The performance of the strategy will be benchmarked against the “buy and hold” strategy to evaluate its effectiveness. In order to streamline the process of staying updated, a Telegram bot will be created to fetch and alert us of the Fear and Greed Index daily.
+In this project, I aim to evaluate the Fear and Greed Index’s accuracy in signalling market reversals and to develop a trading strategy by using it as an indicator. The performance of the strategy will be benchmarked against the 'buy and hold' strategy to evaluate its effectiveness. In order to streamline the process of staying updated, a Telegram bot will be created to fetch and alert us of the Fear and Greed Index daily.
 
 ## Results and Recommendations
-Overall, we can conclude that both the strategy that was explored does have an edge in the markets and the best parameters used for both strategies was able to outperform the simple 'buy and hold' strategy by 65.87% and 54.12% respectively. However, choosing strategy 1 would mean having only 5 trades for the entire backtesting period.
+Overall, we can conclude that both the strategy that was explored does have an edge in the markets and the best parameters used for both strategies was able to outperform the simple 'buy and hold' strategy by 38.64% and 26.10% respectively. However, choosing strategy 1 would mean having only 5 trades for the entire backtesting period.
 
 Thus, the recommended strategy to follow will be **Strategy 2**. While the best threshold in strategy 1 offers better returns than the best threshold in strategy 2, the number of trades is very low and average trade duration is very high. This is not ideal for the live markets considering the psychological aspects.
 
-For strategy 2, there is two recommended set of parameters to use depending on one's risk profile. The parameters with an higher risk tolerance outperforms the simple 'buy and hold' strategy by 54.12% while the parameters with an lower risk tolerance outperforms the simple 'buy and hold' strategy by 41.03%.  However, choosing the higher risk tolerance strategy would mean having to endure double the maximum potential drawdown (-54.0% vs -26.0%) for a potential 10% better outperformance returns offered.
+For strategy 2, there is two recommended set of parameters to use depending on one's risk profile. The parameters with an higher risk tolerance outperforms the simple 'buy and hold' strategy by 26.10% while the parameters with an lower risk tolerance outperforms the simple 'buy and hold' strategy by 15.39%.  However, choosing the higher risk tolerance strategy would mean having to endure double the maximum potential drawdown (-54.0% vs -26.0%) for a potential 10.71% better outperformance returns offered.
 
-Thus, the recommended strategy to follow will be the **lower risk tolerance strategy**. 
+Thus, the recommended strategy to follow will be the **Strategy 2's lower risk tolerance approach**. 
 
 Overall, the recommended strategy 2 along with the lower risk tolerance approach has an **total return of 534.74%** over a 13 year period, having an **annualised 14.57% return** and a **max drawdown of -26.0%**. 
 
@@ -29,6 +29,8 @@ While the results suggest that this strategy has an edge in the markets, there a
 - The results suggests that no sell trades should be taken when the market sentiments are fearful and that we should only focus on buys. This makes sense considering that the dataset used covers a decade during which the market was trending upwards. The market crash in 2020 during the Coronavirus pandemic also contributed to the overall profitability as we were able to capture the recovery move. While it is true that markets tend to rise in the long run (over a few decades), short-term movements are unpredictable. Thus, this strategy may not perform well if the markets trend downwards for the next 10 years. But, that is something that no one can predict with certainty. 
 - This strategy is one that works well in trending markets. If the market trends sideways during periods of consolidation, the strategy could struggle due to many false signals, leading to losses.
 - The recommended strategy and risk tolerance approach have a win rate of 28.12% which is relatively low and can be challenging to manage psychologically in the live markets.
+
+Generally, considering that the annualised return of the recommended Strategy 2, using the lower risk tolerance approach has an annualised return of 14.57%, outperforming the 13.37% annualised return of the 'buy and hold' strategy by just 1.2%. This marginal difference suggests that it might be simpler to adopt a 'buy and hold' strategy rather than developing a trading strategy around it. However, the Fear and Greed Index can still be valuable for timing entries for long-term investments in the SPY index.
 
 ## Overview Of Files
 - `analysis.ipynb` is the jupyter notebook where all the analysis was done.

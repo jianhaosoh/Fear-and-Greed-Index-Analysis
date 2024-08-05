@@ -68,7 +68,7 @@ class Backtest:
     def buy_and_hold_return(self):
         shares = self.initial_balance // self.data.iloc[0]['SPY Opening Price']
         trade = Trade(self.data.index[0], self.data.iloc[0]['SPY Opening Price'], 'Buy', shares, None, None, self.data, self.initial_balance)
-        returns = trade.close_trade(self.data.index[-1], self.data.iloc[-1]['SPY Closing Price']).returns - self.initial_balance
+        returns = trade.close_trade(self.data.index[-1], self.data.iloc[-1]['SPY Closing Price']).returns
         return returns
     
     def generate_signal(self, buy_threshold, sell_threshold):
@@ -117,6 +117,92 @@ class Backtest:
                 sell_tp = None
                 sell_sl = None
         return signals
+    
+    def calculate_daily_equity(self):
+        daily_equity = pd.Series(index=self.data.index, dtype=float)
+        daily_equity.iloc[0] = self.initial_balance
+        current_balance = self.initial_balance
+        open_trades = []
+
+        for index in range(0, len(self.data)):
+            signal = self.signals[index]
+            open_price = self.data.iloc[index]['SPY Opening Price']
+            close_price = self.data.iloc[index]['SPY Closing Price']
+            high_price = self.data.iloc[index]['SPY High Price']
+            low_price = self.data.iloc[index]['SPY Low Price']
+            date = self.data.iloc[index].name
+
+            # Handle last day of data, close all open positions
+            if index == len(self.data) - 1:
+                for trade in open_trades:
+                    trade.close_trade(date, close_price)
+                    current_balance += trade.returns
+                daily_equity[date] = current_balance
+                break
+            
+            # Handle rest of the days,
+            # Check closing positions first
+            for trade in open_trades:
+                if trade.position == 'Buy':
+                    if high_price >= trade.take_profit:
+                        trade.close_trade(date, trade.take_profit)
+                        current_balance += trade.returns
+                        open_trades.remove(trade)
+                    elif low_price <= trade.stop_loss:
+                        trade.close_trade(date, trade.stop_loss)
+                        current_balance += trade.returns
+                        open_trades.remove(trade)
+                else: # for sell position
+                    if low_price <= trade.take_profit:
+                        trade.close_trade(date, trade.take_profit)
+                        current_balance += trade.returns
+                        open_trades.remove(trade)
+                    elif high_price >= trade.stop_loss:
+                        trade.close_trade(date, trade.stop_loss)
+                        current_balance += trade.returns
+                        open_trades.remove(trade)
+
+            # Check any positions to open and close on the same day if necessary
+            if signal == 'Buy':
+                risk_amount = self.risk_per_trade * 0.01 * current_balance 
+                buy_tp = open_price * (1 + (self.loss_buffer * 0.01 * self.risk_reward_ratio))
+                buy_sl = open_price * (1 - (self.loss_buffer * 0.01))
+                shares = risk_amount // (open_price - buy_sl) 
+                new_trade = Trade(date, open_price, 'Buy', shares, buy_tp, buy_sl, self.data, current_balance)
+                # Check if we can close on the same day
+                if high_price >= buy_tp:
+                    new_trade.close_trade(date, buy_tp)
+                    current_balance += new_trade.returns
+                elif low_price <= buy_sl:
+                    new_trade.close_trade(date, buy_sl)
+                    current_balance += new_trade.returns
+                else:
+                    open_trades.append(new_trade)
+            elif signal == 'Sell':
+                risk_amount = self.risk_per_trade * 0.01 * current_balance 
+                sell_tp = open_price * (1 - (self.loss_buffer * 0.01 * self.risk_reward_ratio))
+                sell_sl = open_price * (1 + (self.loss_buffer * 0.01))
+                shares = risk_amount // (sell_sl - open_price)
+                new_trade = Trade(date, open_price, 'Sell', shares, sell_tp, sell_sl, self.data, current_balance)
+                # Check if we can close on the same day
+                if low_price <= sell_tp:
+                    new_trade.close_trade(date, sell_tp)
+                    current_balance += new_trade.returns
+                elif high_price >= sell_sl:
+                    new_trade.close_trade(date, sell_sl)
+                    current_balance += new_trade.returns
+                else:
+                    open_trades.append(new_trade)
+
+            # Calculate unrealized P/L and update daily equity
+            unrealized_pl = sum(
+                trade.shares * (close_price - trade.open_price) if trade.position == 'Buy'
+                else trade.shares * (trade.open_price - close_price)
+                for trade in open_trades
+            )
+            daily_equity[date] = current_balance + unrealized_pl
+
+        return daily_equity
 
     def backtest(self):
         for index in range(0, len(self.data)):
@@ -210,18 +296,13 @@ class Backtest:
         ax2.set_ylabel('Fear and Greed Index')
         ax2.legend(loc='upper left')
 
-        transaction_records = self.transaction_records()
-        initial_record = pd.DataFrame({
-            'Close Date': [self.data.index.min()],
-            'Equity Balance': [self.initial_balance]
-        })
-        last_record = pd.DataFrame({
-            'Close Date': [self.data.index.max()],
-            'Equity Balance': [transaction_records['Equity Balance'].iloc[-1]]
-        })
-        full_records = pd.concat([initial_record, transaction_records[['Close Date', 'Equity Balance']]]).reset_index(drop=True)
-        full_records = pd.concat([full_records, last_record]).reset_index(drop=True)
-        ax3.plot(full_records['Close Date'], full_records['Equity Balance'], label='Equity Balance', color='purple')
+        initial_shares = self.initial_balance // self.data.iloc[0]['SPY Opening Price']
+        buy_hold_equity = self.data['SPY Closing Price'] * initial_shares
+        buy_hold_equity.iloc[0] = self.initial_balance
+        daily_equity = self.calculate_daily_equity()
+        
+        ax3.plot(daily_equity.index, daily_equity.values, label='Strategy', color='purple')
+        ax3.plot(self.data.index, buy_hold_equity, label='Buy & Hold', color='grey')
         ax3.set_ylabel('Equity Balance')
         ax3.set_xlabel('Date')
         ax3.legend(loc='upper left')
@@ -295,12 +376,12 @@ class Backtest:
             'Initial Balance': self.initial_balance,
             'Final Balance': round(self.balance, 2),
             'Total Returns': round(total_returns, 2),
-            'Total Returns (%)': round(((total_returns) / self.initial_balance) * 100, 2),
+            'Total Returns (%)': round((total_returns / self.initial_balance) * 100, 2),
             'Annualised Returns (%)': round(((1 + total_returns / self.initial_balance) ** (365 / (self.data.index.max() - self.data.index.min()).days) - 1) * 100, 2),
-            'Average Returns': round((total_returns) / (self.data.index.max().year - self.data.index.min().year), 2),
-            'Average Returns (%)': round(((total_returns) / self.initial_balance) * 100 / (self.data.index.max().year - self.data.index.min().year), 2),
-            'Average Returns Per Trade': round((total_returns) / total_trades, 2),
-            'Average Returns Per Trade (%)': round(((total_returns) / self.initial_balance) * 100 / total_trades, 2),
+            'Average Returns': round(total_returns / (self.data.index.max().year - self.data.index.min().year), 2),
+            'Average Returns (%)': round((total_returns / self.initial_balance) * 100 / (self.data.index.max().year - self.data.index.min().year), 2),
+            'Average Returns Per Trade': round(total_returns / total_trades, 2),
+            'Average Returns Per Trade (%)': round((total_returns / self.initial_balance) * 100 / total_trades, 2),
             'Average Trade Duration': int(avg_duration),
             'Number of Winners': len(winners),
             'Number of Long Winners': len([trade for trade in winners if trade.position == 'Buy']),

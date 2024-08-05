@@ -48,7 +48,7 @@ class Backtest:
     def buy_and_hold_return(self):
         shares = self.initial_balance // self.data.iloc[0]['SPY Opening Price']
         trade = Trade(self.data.index[0], self.data.iloc[0]['SPY Opening Price'], 'Buy', shares)
-        returns = trade.close_trade(self.data.index[-1], self.data.iloc[-1]['SPY Opening Price']).returns - self.initial_balance
+        returns = trade.close_trade(self.data.index[-1], self.data.iloc[-1]['SPY Closing Price']).returns
         return returns
     
     def generate_signal(self, buy_threshold, sell_threshold):
@@ -140,7 +140,7 @@ class Backtest:
             'Total Returns': round(total_returns, 2),
             'Total Returns (%)': round((total_returns / self.initial_balance) * 100, 2),
             'Annualised Returns (%)': round(((1 + total_returns / self.initial_balance) ** (365 / (self.data.index.max() - self.data.index.min()).days) - 1) * 100, 2),
-            'Average Returns': round((total_returns) / (self.data.index.max().year - self.data.index.min().year), 2),
+            'Average Returns': round(total_returns / (self.data.index.max().year - self.data.index.min().year), 2),
             'Average Returns (%)': round((total_returns / self.initial_balance) * 100 / (self.data.index.max().year - self.data.index.min().year), 2),
             'Average Returns Per Trade': round(total_returns / total_trades, 2),
             'Average Returns Per Trade (%)': round((total_returns / self.initial_balance) * 100 / total_trades, 2),
